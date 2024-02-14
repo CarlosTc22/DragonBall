@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		B319870A2B7CBB450028681A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31987092B7CBB450028681A /* AppDelegate.swift */; };
 		B319870C2B7CBB450028681A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B319870B2B7CBB450028681A /* SceneDelegate.swift */; };
-		B319870E2B7CBB450028681A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B319870D2B7CBB450028681A /* ViewController.swift */; };
+		B319870E2B7CBB450028681A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B319870D2B7CBB450028681A /* LoginViewController.swift */; };
 		B31987112B7CBB450028681A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B319870F2B7CBB450028681A /* Main.storyboard */; };
 		B31987142B7CBB450028681A /* DragonBall.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B31987122B7CBB450028681A /* DragonBall.xcdatamodeld */; };
 		B31987162B7CBB460028681A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B31987152B7CBB460028681A /* Assets.xcassets */; };
@@ -17,6 +17,7 @@
 		B31987242B7CBB460028681A /* DragonBallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31987232B7CBB460028681A /* DragonBallTests.swift */; };
 		B319872E2B7CBB460028681A /* DragonBallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B319872D2B7CBB460028681A /* DragonBallUITests.swift */; };
 		B31987302B7CBB460028681A /* DragonBallUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B319872F2B7CBB460028681A /* DragonBallUITestsLaunchTests.swift */; };
+		B31987542B7CD7020028681A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31987532B7CD7020028681A /* LoginViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,7 +41,7 @@
 		B31987062B7CBB450028681A /* DragonBall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DragonBall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B31987092B7CBB450028681A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B319870B2B7CBB450028681A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B319870D2B7CBB450028681A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B319870D2B7CBB450028681A /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		B31987102B7CBB450028681A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B31987132B7CBB450028681A /* DragonBall.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DragonBall.xcdatamodel; sourceTree = "<group>"; };
 		B31987152B7CBB460028681A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -51,6 +52,7 @@
 		B31987292B7CBB460028681A /* DragonBallUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DragonBallUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B319872D2B7CBB460028681A /* DragonBallUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragonBallUITests.swift; sourceTree = "<group>"; };
 		B319872F2B7CBB460028681A /* DragonBallUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragonBallUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		B31987532B7CD7020028681A /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,9 +133,9 @@
 		B319873C2B7CBBA10028681A /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
-				B319870D2B7CBB450028681A /* ViewController.swift */,
 				B319870F2B7CBB450028681A /* Main.storyboard */,
-				B31987172B7CBB460028681A /* LaunchScreen.storyboard */,
+				B31987422B7CBC9D0028681A /* Login */,
+				B31987412B7CBC920028681A /* Launch */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -149,9 +151,42 @@
 		B319873E2B7CBBBB0028681A /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				B31987122B7CBB450028681A /* DragonBall.xcdatamodeld */,
+				B31987402B7CBC530028681A /* Api */,
+				B319873F2B7CBC4C0028681A /* Local */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		B319873F2B7CBC4C0028681A /* Local */ = {
+			isa = PBXGroup;
+			children = (
+				B31987122B7CBB450028681A /* DragonBall.xcdatamodeld */,
+			);
+			path = Local;
+			sourceTree = "<group>";
+		};
+		B31987402B7CBC530028681A /* Api */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Api;
+			sourceTree = "<group>";
+		};
+		B31987412B7CBC920028681A /* Launch */ = {
+			isa = PBXGroup;
+			children = (
+				B31987172B7CBB460028681A /* LaunchScreen.storyboard */,
+			);
+			path = Launch;
+			sourceTree = "<group>";
+		};
+		B31987422B7CBC9D0028681A /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				B319870D2B7CBB450028681A /* LoginViewController.swift */,
+				B31987532B7CD7020028681A /* LoginViewModel.swift */,
+			);
+			path = Login;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -285,9 +320,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B319870E2B7CBB450028681A /* ViewController.swift in Sources */,
+				B319870E2B7CBB450028681A /* LoginViewController.swift in Sources */,
 				B31987142B7CBB450028681A /* DragonBall.xcdatamodeld in Sources */,
 				B319870A2B7CBB450028681A /* AppDelegate.swift in Sources */,
+				B31987542B7CD7020028681A /* LoginViewModel.swift in Sources */,
 				B319870C2B7CBB450028681A /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
