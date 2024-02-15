@@ -8,10 +8,15 @@
 import Foundation
 
 class LoginViewModel: LoginViewControllerDelegate {
-
+    let apiProvider : ApiProviderProtocol
+    
     // MARK: - Properties -
     var viewState: ((LoginViewState) -> Void)?
 
+    // MARK: - Initializers -
+    init(apiProvider : ApiProviderProtocol) {
+        self.apiProvider = apiProvider
+    }
 
     // MARK: - Public functions -
     func onLoginPressed(email: String?, password: String?) {
