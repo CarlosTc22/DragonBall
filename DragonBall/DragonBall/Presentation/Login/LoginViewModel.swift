@@ -8,14 +8,38 @@
 import Foundation
 
 class LoginViewModel: LoginViewControllerDelegate {
-    let apiProvider : ApiProviderProtocol
-    
+    // MARK: - Dependencies -
+    private let apiProvider: ApiProviderProtocol
+    private let secureDataProvider: SecureDataProviderProtocol
+
     // MARK: - Properties -
     var viewState: ((LoginViewState) -> Void)?
+    var heroesViewModel: HeroesViewControllerDelegate {
+        HeroesViewModel(
+            apiProvider: apiProvider,
+            secureDataProvider: secureDataProvider
+        )
+    }
+
 
     // MARK: - Initializers -
-    init(apiProvider : ApiProviderProtocol) {
+    init(
+        apiProvider: ApiProviderProtocol,
+        secureDataProvider: SecureDataProviderProtocol
+    ) {
         self.apiProvider = apiProvider
+        self.secureDataProvider = secureDataProvider
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onLoginResponse),
+            name: NotificationCenter.apiLoginNotification,
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Public functions -
@@ -42,6 +66,19 @@ class LoginViewModel: LoginViewControllerDelegate {
         }
     }
 
+    @objc func onLoginResponse(_ notification: Notification) {
+        defer { viewState?(.loading(false)) }
+
+        // Parsear resultado que vendrá en notification.userInfo
+        guard let token = notification.userInfo?[NotificationCenter.tokenKey] as? String,
+              !token.isEmpty else {
+            return
+        }
+
+        secureDataProvider.save(token: token)
+        viewState?(.navigateToNext)
+    }
+
     // MARK: - Private functions -
     private func isValid(email: String?) -> Bool {
         email?.isEmpty == false && (email?.contains("@") ?? false)
@@ -52,6 +89,7 @@ class LoginViewModel: LoginViewControllerDelegate {
     }
 
     private func doLoginWith(email: String, password: String) {
-
+        apiProvider.login(for: email,
+                          with: password)
     }
 }

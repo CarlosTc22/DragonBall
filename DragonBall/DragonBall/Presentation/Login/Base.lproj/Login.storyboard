@@ -104,14 +104,25 @@
                     <connections>
                         <outlet property="emailField" destination="56p-eT-hdW" id="J4R-Wb-YQK"/>
                         <outlet property="emailFieldError" destination="2ZK-Zu-0Db" id="aRs-ap-K19"/>
-                        <outlet property="loadingView" destination="zwa-vf-VdB" id="9Tr-qb-i42"/>
+                        <outlet property="loadingView" destination="zwa-vf-VdB" id="ATb-dF-fSb"/>
                         <outlet property="passwordField" destination="QbL-sI-P59" id="Ilb-u3-A3c"/>
                         <outlet property="passwordFieldError" destination="1vV-c9-143" id="Jid-dI-f19"/>
+                        <segue destination="tI9-kS-Llv" kind="show" identifier="LOGIN_TO_HEROES" id="Bz5-25-xWn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="129.00763358778624" y="-2.1126760563380285"/>
+        </scene>
+        <!--Heroes-->
+        <scene sceneID="kpD-SY-vK4">
+            <objects>
+                <viewControllerPlaceholder storyboardName="Heroes" id="tI9-kS-Llv" userLabel="Heroes" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="fQo-p4-GDg"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="SUP-1B-P3Y" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="933" y="-2"/>
         </scene>
     </scenes>
     <resources>
@@ -119,7 +130,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
