@@ -2,55 +2,64 @@
 //  CoreDataStack.swift
 //  DragonBall
 //
-//  Created by Juan Carlos Torrejon Cañedo on 16/2/24.
+//  Created by Juan Carlos Torrejon Cañedo on 2/16/24.
 //
 
 import Foundation
 import CoreData
 
+// MARK: - ManagedObjectConvertible Protocol
+// This protocol defines a contract to convert domain models to their corresponding CoreData Managed Objects.
+protocol ManagedObjectConvertible {
+    associatedtype ManagedObject
+    
+    // Attempts to convert the current object to its corresponding Managed Object within a given CoreData context.
+    // Returns the resulting Managed Object or nil if conversion fails.
+    @discardableResult
+    func toManagedObject(in context: NSManagedObjectContext) -> ManagedObject?
+}
 
+// MARK: - ModelConvertible Protocol
+// This protocol defines a contract to convert CoreData Managed Objects to domain models.
+protocol ModelConvertible {
+    associatedtype Model
+    
+    // Converts the CoreData Managed Object to its corresponding domain model.
+    // Returns the model or nil if conversion is not possible.
+    func toModel() -> Model?
+}
+
+// MARK: - CoreDataStack Class
+// This class manages the CoreData stack for the application, providing centralized access to the persistent container.
 class CoreDataStack: NSObject {
-    // Singleton
-    static let shared: CoreDataStack = .init() // CoreDataStack()
+    // Singleton to access the CoreDataStack instance throughout the application.
+    static let shared: CoreDataStack = .init()
+    
+    // Private constructor to prevent creation of multiple instances of CoreDataStack.
     private override init() {}
-
-    // MARK: - Core Data stack
+    
+    // Persistent container encapsulating the CoreData model of the application.
     lazy var persistentContainer: NSPersistentContainer = {
-        /*
-         The persistent container for the application. This implementation
-         creates and returns a container, having loaded the store for the
-         application to it. This property is optional since there are legitimate
-         error conditions that could cause the creation of the store to fail.
-         */
         let container = NSPersistentContainer(name: "DragonBall")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        container.loadPersistentStores { (storeDescription, error) in
+            // Error handling when loading persistent stores.
             if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
+                // It is recommended to handle this error more appropriately in a real application, possibly logging it or showing an alert to the user.
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
-        })
+        }
         return container
     }()
-
-    // MARK: - Core Data Saving support
+    
+    // Saves changes in the managed object context if there are pending changes.
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                // CoreData error is caught and a fatal error is thrown.
+                // In a real application, it is preferable to handle this error more gracefully.
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }

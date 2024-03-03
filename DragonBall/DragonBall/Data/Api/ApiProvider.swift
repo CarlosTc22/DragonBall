@@ -7,62 +7,76 @@
 
 import Foundation
 
-extension NotificationCenter {
+// Extensión de NotificationCenter para facilitar la gestión de notificaciones específicas de la API.
+public extension NotificationCenter {
     static let apiLoginNotification = Notification.Name("NOTIFICATION_API_LOGIN")
     static let tokenKey = "KEY_TOKEN"
 }
 
-protocol ApiProviderProtocol {
+// Protocolo que define los servicios disponibles para interactuar con la API.
+public protocol ApiProviderProtocol {
+    init(secureDataProvider: SecureDataProviderProtocol)
     func login(for user: String, with password: String)
-    func getHeroes(by name: String?, token: String, completion: ((Heroes) -> Void)?)
-    func getLocations(by heroId: String?, token: String, completion: ((HeroLocations) -> Void)?)
+    func getHeroes(_ heroName: String?, completion: ((Heroes) -> Void)?)
+    func getLocations(by heroId: String, completion: ((HeroLocations) -> Void)?)
 }
 
+// Implementación del proveedor de API para interactuar con un servicio web específico.
 class ApiProvider: ApiProviderProtocol {
-    // MARK: - Constants -
+    // Base URL para las peticiones a la API.
     static private let apiBaseURL = "https://dragonball.keepcoding.education/api"
+    
+    // Endpoint URLs para las diferentes peticiones a la API.
     private enum Endpoint {
         static let login = "/auth/login"
-        static let heroes = "/heros/all"
-        static let heroLocations = "/heros/locations"
+        static let heores = "/heros/all"
+        static let locations = "/heros/locations"
     }
-
-
-    // MARK: - ApiProviderProtocol -
+    
+    // Proveedor de datos seguro para manejar, por ejemplo, tokens de autenticación.
+    private let secureDataProvider: SecureDataProviderProtocol
+    
+    required init(secureDataProvider: SecureDataProviderProtocol) {
+        self.secureDataProvider = secureDataProvider
+    }
+    
+    // MARK: - Métodos del protocolo ApiProviderProtocol -
+    
+    // Realiza el inicio de sesión y notifica mediante NotificationCenter.
     func login(for user: String, with password: String) {
         guard let url = URL(string: "\(ApiProvider.apiBaseURL)\(Endpoint.login)") else {
-            // TODO: Enviar notificación indicando el error
+            // Considerar enviar notificación de error
             return
         }
-
-        guard let loginData = String(format: "%@:%@",
-                                     user, password).data(using: .utf8)?.base64EncodedString() else {
-            // TODO: Enviar notificación indicando el error
+        
+        guard let loginData = String(format: "%@:%@", user, password).data(using: .utf8)?.base64EncodedString() else {
+            // Considerar enviar notificación de error
             return
         }
-
+        
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-        urlRequest.setValue("Basic \(loginData)",
-                            forHTTPHeaderField: "Authorization")
-
+        urlRequest.setValue("Basic \(loginData)", forHTTPHeaderField: "Authorization")
+        
         URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+            // Manejo de error de la petición
             guard error == nil else {
-                // TODO: Enviar notificación indicando el error
+                // Enviar notificación de error
                 return
             }
-
-            guard let data,
-                  (response as? HTTPURLResponse)?.statusCode == 200 else {
-                // TODO: Enviar notificación indicando response error
+            
+            // Validación del código de estado HTTP
+            guard let data, (response as? HTTPURLResponse)?.statusCode == 200 else {
+                // Enviar notificación de error
                 return
             }
-
+            
+            // Decodificación de los datos recibidos
             guard let responseData = String(data: data, encoding: .utf8) else {
-                // TODO: Enviar notificación indicando response vacío
+                // Enviar notificación de error
                 return
             }
-
+            
             NotificationCenter.default.post(
                 name: NotificationCenter.apiLoginNotification,
                 object: nil,
@@ -70,88 +84,66 @@ class ApiProvider: ApiProviderProtocol {
             )
         }.resume()
     }
-
-    func getHeroes(by name: String?, token: String, completion: ((Heroes) -> Void)?) {
-        guard let url = URL(string: "\(ApiProvider.apiBaseURL)\(Endpoint.heroes)") else {
-            // TODO: Enviar notificación indicando el error
+    
+    // Obtiene héroes y llama al completion con el resultado.
+    func getHeroes(_ heroName: String? = nil, completion: ((Heroes) -> Void)? = nil) {
+        guard let url = URL(string: "\(ApiProvider.apiBaseURL)\(Endpoint.heores)"),
+              let token = secureDataProvider.getToken() else {
+            completion?([])
             return
         }
-
-        let jsonData: [String: Any] = ["name": name ?? ""]
-        let jsonParameters = try? JSONSerialization.data(withJSONObject: jsonData)
-
+        
+        let jsonData: [String: Any] = ["name": heroName ?? ""]
+        guard let jsonParameters = try? JSONSerialization.data(withJSONObject: jsonData) else {
+            completion?([])
+            return
+        }
+        
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json; charset=utf-8",
-                            forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(token)",
-                            forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         urlRequest.httpBody = jsonParameters
-
+        
         URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
-            guard error == nil else {
-                // TODO: Enviar notificación indicando el error
+            guard error == nil, let data, (response as? HTTPURLResponse)?.statusCode == 200,
+                  let heroes = try? JSONDecoder().decode([Hero].self, from: data) else {
                 completion?([])
                 return
             }
-
-            guard let data,
-                  (response as? HTTPURLResponse)?.statusCode == 200 else {
-                // TODO: Enviar notificación indicando response error
-                completion?([])
-                return
-            }
-
-            guard let heroes = try? JSONDecoder().decode(Heroes.self, from: data) else {
-                // TODO: Enviar notificación indicando response error
-                completion?([])
-                return
-            }
-
-            print("API RESPONSE - GET HEROES: \(heroes)")
+            
             completion?(heroes)
         }.resume()
     }
-
-    func getLocations(by heroId: String?, token: String, completion: ((HeroLocations) -> Void)?) {
-        guard let url = URL(string: "\(ApiProvider.apiBaseURL)\(Endpoint.heroLocations)") else {
-            // TODO: Enviar notificación indicando el error
+    
+    // Obtiene las ubicaciones de un héroe específico y llama al completion con el resultado.
+    func getLocations(by heroId: String, completion: ((HeroLocations) -> Void)? = nil) {
+        guard let url = URL(string: "\(ApiProvider.apiBaseURL)\(Endpoint.locations)"),
+              let token = secureDataProvider.getToken() else {
+            completion?([])
             return
         }
-
-        let jsonData: [String: Any] = ["id": heroId ?? ""]
-        let jsonParameters = try? JSONSerialization.data(withJSONObject: jsonData)
-
+        
+        let jsonData: [String: Any] = ["id": heroId]
+        guard let jsonParameters = try? JSONSerialization.data(withJSONObject: jsonData) else {
+            completion?([])
+            return
+        }
+        
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json; charset=utf-8",
-                            forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(token)",
-                            forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         urlRequest.httpBody = jsonParameters
-
+        
         URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
-            guard error == nil else {
-                // TODO: Enviar notificación indicando el error
+            guard error == nil, let data, (response as? HTTPURLResponse)?.statusCode == 200,
+                  let locations = try? JSONDecoder().decode([HeroLocation].self, from: data) else {
                 completion?([])
                 return
             }
-
-            guard let data,
-                  (response as? HTTPURLResponse)?.statusCode == 200 else {
-                // TODO: Enviar notificación indicando response error
-                completion?([])
-                return
-            }
-
-            guard let heroLocations = try? JSONDecoder().decode(HeroLocations.self, from: data) else {
-                // TODO: Enviar notificación indicando response error
-                completion?([])
-                return
-            }
-
-            print("API RESPONSE - GET HERO LOCATIONS: \(heroLocations)")
-            completion?(heroLocations)
+            
+            completion?(locations)
         }.resume()
     }
 }

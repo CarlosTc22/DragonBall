@@ -7,14 +7,15 @@
 
 import UIKit
 
-// MARK: - View Protocol -
+// Define the interactions with the LoginViewController's ViewModel.
 protocol LoginViewControllerDelegate {
     var viewState: ((LoginViewState) -> Void)? { get set }
     var heroesViewModel: HeroesViewControllerDelegate { get }
+    
     func onLoginPressed(email: String?, password: String?)
 }
 
-// MARK: - View State -
+// Possible states of the view during the login process.
 enum LoginViewState {
     case loading(_ isLoading: Bool)
     case showErrorEmail(_ error: String?)
@@ -22,102 +23,94 @@ enum LoginViewState {
     case navigateToNext
 }
 
+// View controller for the login screen.
 class LoginViewController: UIViewController {
-    // MARK: - IBOutlet -
+    
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var emailFieldError: UILabel!
     @IBOutlet weak var passwordFieldError: UILabel!
     @IBOutlet weak var loadingView: UIView!
-
-    // MARK: - IBAction -
+    
+    // Action linked to the login button.
     @IBAction func onLoginPressed() {
-        // Obtener el email y password introducidos por el usuario
-        // y enviarlos al servicio del API de Login
-        viewModel?.onLoginPressed(
-            email: emailField.text,
-            password: passwordField.text
-        )
+        viewModel?.onLoginPressed(email: emailField.text, password: passwordField.text)
     }
-
-    // MARK: - Public Properties -
+    
     var viewModel: LoginViewControllerDelegate?
-
+    
+    // Identifiers for the text fields.
     private enum FieldType: Int {
         case email = 0
         case password
     }
-
-    // MARK: - Lifecycle -
+    
+    // Configures the view and sets up observers for changes in the ViewModel's state.
     override func viewDidLoad() {
         super.viewDidLoad()
-        initViews()
-        setObservers()
+        configureViews()
+        setupObservers()
     }
-
+    
+    // Prepares necessary data before transitioning.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard segue.identifier == "LOGIN_TO_HEROES",
-              let heroesViewController = segue.destination as? HeroesViewController else {
-            return
+        if segue.identifier == "LOGIN_TO_HEROES",
+           let heroesViewController = segue.destination as? HeroesViewController {
+            heroesViewController.viewModel = viewModel?.heroesViewModel
         }
-
-        heroesViewController.viewModel = viewModel?.heroesViewModel
     }
-
-    // MARK: - Private functions -
-    private func initViews() {
+    
+    // Configures the initial user interface and delegates for the text fields.
+    private func configureViews() {
         emailField.delegate = self
         emailField.tag = FieldType.email.rawValue
         passwordField.delegate = self
         passwordField.tag = FieldType.password.rawValue
-
+        
+        // Allows hiding the keyboard when tapping outside of text fields.
         view.addGestureRecognizer(
-            UITapGestureRecognizer(
-                target: self,
-                action: #selector(dismissKeyboard)
-            )
+            UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         )
     }
-
+    
     @objc func dismissKeyboard() {
-        // Ocultar el teclado al pulsar en cualquier punto de la vista
         view.endEditing(true)
     }
-
-    private func setObservers() {
+    
+    // Observes changes in the ViewModel's view state to update the UI.
+    private func setupObservers() {
         viewModel?.viewState = { [weak self] state in
             DispatchQueue.main.async {
                 switch state {
-                    case .loading(let isLoading):
-                        self?.loadingView.isHidden = !isLoading
-
-                    case .showErrorEmail(let error):
-                        self?.emailFieldError.text = error
-                        self?.emailFieldError.isHidden = (error == nil || error?.isEmpty == true)
-
-                    case .showErrorPassword(let error):
-                        self?.passwordFieldError.text = error
-                        self?.passwordFieldError.isHidden = (error == nil || error?.isEmpty == true)
-
-                    case .navigateToNext:
-                        self?.performSegue(withIdentifier: "LOGIN_TO_HEROES",
-                                           sender: nil)
+                case .loading(let isLoading):
+                    self?.loadingView.isHidden = !isLoading
+                    
+                case .showErrorEmail(let error):
+                    self?.emailFieldError.text = error
+                    self?.emailFieldError.isHidden = error?.isEmpty ?? true
+                    
+                case .showErrorPassword(let error):
+                    self?.passwordFieldError.text = error
+                    self?.passwordFieldError.isHidden = error?.isEmpty ?? true
+                    
+                case .navigateToNext:
+                    self?.performSegue(withIdentifier: "LOGIN_TO_HEROES", sender: nil)
                 }
             }
         }
     }
 }
 
+// MARK: - UITextFieldDelegate
 extension LoginViewController: UITextFieldDelegate {
+    // Hides error messages when the user finishes editing the fields.
     func textFieldDidEndEditing(_ textField: UITextField) {
         switch FieldType(rawValue: textField.tag) {
-            case .email:
-                emailFieldError.isHidden = true
-
-            case .password:
-                passwordFieldError.isHidden = true
-
-            default: break
+        case .email:
+            emailFieldError.isHidden = true
+        case .password:
+            passwordFieldError.isHidden = true
+        default: break
         }
     }
 }
